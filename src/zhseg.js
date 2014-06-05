@@ -9,10 +9,8 @@ var zhseg = (function(){
 
     var trie = new Trie();
 
-    var init = function(words){
-        words.forEach(function(e, i){
-            trie.add(e);
-        });
+    var init = function(trie_instance){
+        trie = trie_instance;
     };
 
     var seg = function(text){
@@ -25,7 +23,6 @@ var zhseg = (function(){
     var TYPE_DELIM   = 3;
 
     var frag = function(text, algo){
-        console.log(text);
         var text_length = text.length;
         var window_begin = 0;
         var window_end = 0;
@@ -34,7 +31,6 @@ var zhseg = (function(){
         var output_part = function(wbegin, wend){
             var part = text.substring(wbegin, wend);
             if(ltype == TYPE_DEFAULT && algo){
-                console.log(part);
                 algo(part).forEach(function(e,i){ result.push(e)});
             }else{
                 result.push(part);
