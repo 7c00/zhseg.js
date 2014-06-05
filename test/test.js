@@ -1,25 +1,26 @@
 // test.js
 
 window.onload = function() {
+
+    // 字典是否加载
+    var dict_loaded = false;
+
+    // 显示页面日志信息
     var div = document.getElementById("log");
     var log = function(msg) {
+        div.appendChild(document.createElement('br'));
         div.appendChild(document.createTextNode(msg));
         div.appendChild(document.createElement("br"));
     }
 
-    var text="第一个实用Akka集群的项目，轻视了。好在兄弟们这几天努力改进，希望能渐渐稳定并对性能和架构加以验证。这个系统的架构和设计是考虑了渐近进化的，如果成立，可以一点一点地放大和载入需求。手上的另一个小项则与它相得益彰。希望思考和设计能带来相应的果。#往前走#";
-
-    // 加载字典
+    // Web Worker
     var worker = new Worker("../src/zhseg.worker.js");
     worker.onmessage = function(event){
         if(event.data.type == 'res_init'){
             if(event.data.status == 'done'){
+                dict_loaded = true;
+                load_dict_btn.textContent = "字典已加载";
                 log("字典加载完成。");
-                log("测试分词:" + text);
-                worker.postMessage({
-                    'type' : 'req_seg',
-                    'text' : text
-                })
             }
         } else if(event.data.type == 'res_seg'){
             if(event.data.status == 'done'){
@@ -32,8 +33,27 @@ window.onload = function() {
         log("加载字典出错: " + error.message + " .");
     };
 
-    log("开始加载字典 ... ");
-    worker.postMessage({
-        'type' : 'req_init'
+    // 界面元素
+    var load_dict_btn = document.getElementById("btn-load-dict");
+    load_dict_btn.addEventListener('click', function(){
+        load_dict_btn.disabled = true;
+        load_dict_btn.textContent = "正在加载字典";
+        log("开始加载字典。（可能需要一段时间）");
+        worker.postMessage({
+            'type' : 'req_init'
+        });
+    });
+    var seg_text_btn = document.getElementById("btn-seg-text");
+    var textarea = document.getElementById("text");
+    seg_text_btn.addEventListener('click', function(){
+        if(!dict_loaded){
+            log("字典未加载");
+            return;
+        }
+        log("分词:" + textarea.value);
+        worker.postMessage({
+            'type' : 'req_seg',
+            'text' : textarea.value
+        });
     });
 }
