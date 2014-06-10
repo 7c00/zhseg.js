@@ -25,7 +25,6 @@ var decompress_words_v2 = function(){
             cursor += length;
         }
     });
-    console.log(words);
     return words;
 };
 
